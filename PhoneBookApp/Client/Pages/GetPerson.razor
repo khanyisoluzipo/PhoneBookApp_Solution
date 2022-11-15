@@ -1,0 +1,75 @@
+﻿@page "/person"
+@page "/person/{id:int}"
+@inject IPersonService PersonService
+
+@if(Id == null){
+    <div class="spinner"></div>
+}
+else{
+    <h3>Edit @person.Name</h3>
+}
+<EditForm Model="person" OnSubmit="HandleSubmit">
+    <div>
+        <label for="Name">Name</label>
+        <InputText id="Name" @bind-Value="person.Name" class="form-control"></InputText><br/>
+    </div>
+    <div>
+        <label for="Surname">Surname</label>
+        <InputText id="Surname" @bind-Value="person.Surname" class="form-control"></InputText><br/>
+    </div>
+    <div>
+        <label for="PhoneNumber">Phone Number</label>
+        <InputText id="PhoneNumber" @bind-Value="person.PhoneNumber" class="form-control"></InputText><br />
+    </div>
+    <div>
+        <label for="EmailAddress">Email Address</label>
+        <InputText id="EmailAddress" @bind-Value="person.EmailAddress" class="form-control"></InputText>
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger" @onclick="DeletePerson">Delete Person</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+
+    PhoneBookApp.Shared.Person person = new PhoneBookApp.Shared.Person();
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = Id == null ? "Save New Person" : "Update Person";
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if(Id == null){
+
+        }
+        else{
+            person = await PersonService.GetPersonById((int)Id);
+        }
+    }
+
+    async Task HandleSubmit(){
+
+        if(Id == null)
+        {
+            await PersonService.AddPerson(person);
+        }
+        else
+        {
+            await PersonService.UpdatePerson(person);
+        }
+
+    }
+
+    async Task DeletePerson()
+    {
+        await PersonService.DeletePerson(person.Id);
+    }
+
+}
